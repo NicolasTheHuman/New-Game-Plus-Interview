@@ -1,16 +1,15 @@
 using UnityEngine;
 
-public class ItemSO : MonoBehaviour
+[CreateAssetMenu(menuName = "Item SO", fileName = "NewItem")]
+public class ItemSO : ScriptableObject
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public string itemName;
+    public Sprite itemSprite;
+    public int maxStackSize = 1;
+    public ItemType itemType;
+}
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+public enum ItemType
+{
+    Cookware, Ingredients, Food
 }
