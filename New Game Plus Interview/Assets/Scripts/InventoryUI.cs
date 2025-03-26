@@ -15,11 +15,12 @@ public class InventoryUI : MonoBehaviour
     public Inventory inventory;
 
     private readonly List<InventorySlot> _uiSlots = new ();
-    private readonly Dictionary<ItemSO, InventorySlot> _inventoryItems = new ();
+
+    private int _slotsOccupied = 0;
+
     private void Start()
     {
         _uiSlots.Clear();
-        _inventoryItems.Clear();
         CreateInventorySlots(startingInventorySize);
         inventory.OnItemAdded += AddItem;
     }
@@ -35,10 +36,19 @@ public class InventoryUI : MonoBehaviour
 
     private void AddItem(ItemSO item, int amount)
     {
+        if(_slotsOccupied >= _uiSlots.Count)
+            CreateInventorySlots(expandStep);
+        
         //Check if item exist in inventory
-        if (_inventoryItems.TryGetValue(item, out var inventoryItem))
+        foreach (var slot in _uiSlots)
         {
-            inventoryItem.UpdateText($"x{inventory.ItemsInDictionary[item]}");
+            if(slot.IsEmpty)
+                continue;
+            
+            if(slot.ItemData != item)
+                continue;
+            
+            slot.UpdateText($"x{inventory.ItemsInDictionary[item]}");
             return;
         }
 
@@ -47,35 +57,29 @@ public class InventoryUI : MonoBehaviour
         {
             if(!slot.IsEmpty)
                 continue;
-            
-            slot.ItemAdded(item.itemSprite);
+
+            slot.ItemAdded(item);
             slot.UpdateText($"x{amount}");
-            _inventoryItems.TryAdd(item, slot);
+            
+            _slotsOccupied++;
             return;
         }
-        
-        //If there are no empty slots add an extra row
-        var oldSlotCount = _uiSlots.Count;
-        CreateInventorySlots(expandStep);
-        
-        if(_uiSlots.Count > oldSlotCount)//Avoid infinite recursion if something goes wrong
-            AddItem(item, amount);
     }
 
     public void RemoveItem(ItemSO item, int amount)
     {
         for (int i = 0; i < _uiSlots.Count; i++)
         {
-            if (_uiSlots[i].ItemImage.sprite != item.itemSprite) 
+            if (_uiSlots[i].ItemData != item) 
                 continue;
             
             if (inventory.ItemsInDictionary[item] <= 0)//Clear slot
             {
                 _uiSlots[i].ItemConsumed();
-                _inventoryItems.Remove(item);
+                _slotsOccupied--;
             }
             else
-                _uiSlots[i].UpdateText($"{_inventoryItems[item]}");
+                _uiSlots[i].UpdateText($"{inventory.ItemsInDictionary[item]}");
 
             return;
         }
