@@ -1,30 +1,34 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class InventorySlot : MonoBehaviour
+public class InventorySlot : MonoBehaviour, IDropHandler
 {
+    private ItemSO _itemData;
+    public ItemSO ItemData => _itemData;
+    
     [SerializeField]
     private Image _itemImage;
-    public Image ItemImage => _itemImage;
-
+    
     [SerializeField] 
     private TextMeshProUGUI _amountText;
 
-    private bool _isEmpty = true;
-    public bool IsEmpty => _isEmpty;
+    public bool IsEmpty => !_itemData;
 
     private void Start()
     {
         _itemImage.gameObject.SetActive(false);
     }
 
-    public void ItemAdded(Sprite itemSprite)
+    public void ItemAdded(ItemSO item)
     {
-        _itemImage.sprite = itemSprite;
+        _itemData = item;
+        _itemImage.sprite = item.itemSprite;
         _itemImage.gameObject.SetActive(true);
-        _isEmpty = false;
     }
 
     public void ItemConsumed()
@@ -32,11 +36,39 @@ public class InventorySlot : MonoBehaviour
         _itemImage.sprite = null;
         _itemImage.gameObject.SetActive(false);
         _amountText.text = "";
-        _isEmpty = true;
+        _itemData = null;
     }
 
     public void UpdateText(string newText)
     {
         _amountText.text = newText;
+    }
+
+    public void OnDrop(PointerEventData eventData)
+    {
+        var droppedItem = eventData.pointerDrag.GetComponent<DraggableItem>();
+        
+        if (droppedItem && droppedItem.parentInventorySlot != this)
+            SwapItems(droppedItem.parentInventorySlot, this);
+    }
+
+    private void SwapItems(InventorySlot fromSlot, InventorySlot toSlot)
+    {
+        var tempItem = fromSlot._itemData;
+        var tempText = fromSlot._amountText.text;
+
+        //Check if the toSlot has an item or is an empty slot
+        if (!toSlot.IsEmpty)
+        {
+            fromSlot.ItemAdded(toSlot.ItemData);
+            fromSlot._amountText.text = toSlot._amountText.text;
+        }
+        else
+        {
+            fromSlot._itemData = null;
+        }
+
+        toSlot.ItemAdded(tempItem);
+        toSlot._amountText.text = tempText;
     }
 }
