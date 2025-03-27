@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Interview.SaveSystem;
 using UnityEngine;
+using Interview.SaveSystem;
 
 public class Inventory : MonoBehaviour
 {
@@ -9,7 +11,36 @@ public class Inventory : MonoBehaviour
     public Dictionary<ItemSO, int> ItemsInDictionary => _itemsInInventory;
 
     public Action<ItemSO, int> OnItemAdded;
-    
+    public Action<InventoryData> OnLoad;
+
+    private void Start()
+    {
+        LoadInventory();
+    }
+
+    private void LoadInventory()
+    {
+        var data = SaveSystem.LoadInventory();
+        
+        if(data == null)
+            return;
+
+        foreach (var slotData in data.inventorySlots)
+        {
+            var tempItem = GetItemByID(slotData.itemID);
+            if(!tempItem)//There is nothing to load in this slot
+                continue;
+            _itemsInInventory.TryAdd(tempItem, Mathf.Min(slotData.quantity, tempItem.maxStackSize));
+        }
+
+        OnLoad?.Invoke(data);
+    }
+
+    public ItemSO GetItemByID(string id)
+    {
+        return Resources.Load<ItemSO>($"Items/{id}");
+    }
+
     public void AddItem(ItemSO item, int amount = 1)
     {
         if (!_itemsInInventory.ContainsKey(item))

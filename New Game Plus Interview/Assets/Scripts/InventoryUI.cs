@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Interview.SaveSystem;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class InventoryUI : MonoBehaviour
 {
     public InventorySlot itemSlotPrefab;
-    public GridLayoutGroup gridLayout;
     
     public int startingInventorySize = 12;
     public int expandStep = 4;
@@ -15,7 +15,8 @@ public class InventoryUI : MonoBehaviour
     public Inventory inventory;
 
     private readonly List<InventorySlot> _uiSlots = new ();
-
+    public List<InventorySlot> InventorySlots => _uiSlots;
+    
     private int _slotsOccupied = 0;
 
     private void Start()
@@ -23,6 +24,37 @@ public class InventoryUI : MonoBehaviour
         _uiSlots.Clear();
         CreateInventorySlots(startingInventorySize);
         inventory.OnItemAdded += AddItem;
+        inventory.OnLoad += LoadUI;
+    }
+
+    private void LoadUI(InventoryData inventoryData)
+    {
+        
+        //Create all missing inventory slots
+        for (int i = startingInventorySize; i < inventoryData.inventorySize; i++)
+        {
+            var inventorySlot = Instantiate(itemSlotPrefab, inventoryPanel);
+            _uiSlots.Add(inventorySlot);
+        }
+
+        //populate used slots
+        foreach (var dataSlot in inventoryData.inventorySlots)
+        {
+            var currentSlot = _uiSlots[dataSlot.slotIndex];
+            var itemData = inventory.GetItemByID(dataSlot.itemID);
+            
+            if(!currentSlot || !itemData)
+                continue;
+            
+            currentSlot.ItemAdded(itemData);
+            currentSlot.UpdateText($"x {inventory.ItemsInDictionary[itemData]}");
+            _slotsOccupied++;
+        }
+    }
+
+    public void SaveInventory()
+    {
+        SaveSystem.SaveInventorySlots(this, inventory);
     }
 
     void CreateInventorySlots(int count)
@@ -49,6 +81,8 @@ public class InventoryUI : MonoBehaviour
                 continue;
             
             slot.UpdateText($"x{inventory.ItemsInDictionary[item]}");
+            
+            SaveInventory();
             return;
         }
 
@@ -62,6 +96,7 @@ public class InventoryUI : MonoBehaviour
             slot.UpdateText($"x{amount}");
             
             _slotsOccupied++;
+            SaveInventory();
             return;
         }
     }
@@ -81,7 +116,20 @@ public class InventoryUI : MonoBehaviour
             else
                 _uiSlots[i].UpdateText($"{inventory.ItemsInDictionary[item]}");
 
+            SaveInventory();
             return;
         }
+    }
+
+    private void OnDestroy()
+    {
+        inventory.OnItemAdded -= AddItem;
+        inventory.OnLoad -= LoadUI;
+        SaveInventory();
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveInventory();
     }
 }
