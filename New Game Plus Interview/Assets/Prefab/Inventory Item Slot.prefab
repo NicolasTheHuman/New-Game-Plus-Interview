@@ -223,8 +223,9 @@ GameObject:
   - component: {fileID: 2680023991518859292}
   - component: {fileID: 5167778919693368378}
   - component: {fileID: 3872530025796212143}
+  - component: {fileID: 8557204426317468903}
   m_Layer: 5
-  m_Name: 'Inventory Item Background '
+  m_Name: Inventory Item Slot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -303,6 +304,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _itemImage: {fileID: 8102227846079627342}
   _amountText: {fileID: 4385570224114452729}
+--- !u!114 &8557204426317468903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5237941427460468378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 045b8f6d847ea8745b9e55025f41660c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _showDelay: 0.5
 --- !u!1 &6561430876049400013
 GameObject:
   m_ObjectHideFlags: 0
