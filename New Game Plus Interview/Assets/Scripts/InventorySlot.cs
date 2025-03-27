@@ -6,10 +6,12 @@ using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class InventorySlot : MonoBehaviour, IDropHandler
+public class InventorySlot : MonoBehaviour, IDropHandler, IPointerClickHandler
 {
+    
     private ItemSO _itemData;
     public ItemSO ItemData => _itemData;
+    public bool IsEmpty => !_itemData;
     
     [SerializeField]
     private Image _itemImage;
@@ -17,7 +19,12 @@ public class InventorySlot : MonoBehaviour, IDropHandler
     [SerializeField] 
     private TextMeshProUGUI _amountText;
 
-    public bool IsEmpty => !_itemData;
+    private TooltipTrigger _tooltipTrigger;
+    
+    private void Awake()
+    {
+        _tooltipTrigger = GetComponent<TooltipTrigger>();
+    }
 
     private void Start()
     {
@@ -29,6 +36,9 @@ public class InventorySlot : MonoBehaviour, IDropHandler
         _itemData = item;
         _itemImage.sprite = item.itemSprite;
         _itemImage.gameObject.SetActive(true);
+        
+        if(_tooltipTrigger)
+            _tooltipTrigger.SetData(item ? item.itemName : "");
     }
 
     public void ItemConsumed()
@@ -37,6 +47,9 @@ public class InventorySlot : MonoBehaviour, IDropHandler
         _itemImage.gameObject.SetActive(false);
         _amountText.text = "";
         _itemData = null;
+        
+        if(_tooltipTrigger)
+            _tooltipTrigger.SetData();
     }
 
     public void UpdateText(string newText)
@@ -70,5 +83,11 @@ public class InventorySlot : MonoBehaviour, IDropHandler
 
         toSlot.ItemAdded(tempItem);
         toSlot._amountText.text = tempText;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if(_itemData)
+            DescriptionPanelUI.Instance.ShowItemDescription(_itemData);
     }
 }
