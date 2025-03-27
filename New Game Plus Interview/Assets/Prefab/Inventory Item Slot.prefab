@@ -303,6 +303,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _itemImage: {fileID: 8102227846079627342}
+  _itemImageCanvasGroup: {fileID: 2520333706036326573}
   _amountText: {fileID: 4385570224114452729}
 --- !u!114 &8557204426317468903
 MonoBehaviour:
@@ -329,6 +330,7 @@ GameObject:
   - component: {fileID: 5925048667118645468}
   - component: {fileID: 8102227846079627342}
   - component: {fileID: 1685692261600519988}
+  - component: {fileID: 2520333706036326573}
   m_Layer: 5
   m_Name: Item Sprite
   m_TagString: Untagged
@@ -407,3 +409,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   parentInventorySlot: {fileID: 3872530025796212143}
+--- !u!225 &2520333706036326573
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6561430876049400013}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

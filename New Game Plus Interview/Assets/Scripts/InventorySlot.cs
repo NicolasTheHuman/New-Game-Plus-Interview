@@ -8,13 +8,15 @@ using UnityEngine.UI;
 
 public class InventorySlot : MonoBehaviour, IDropHandler, IPointerClickHandler
 {
-    
     private ItemSO _itemData;
     public ItemSO ItemData => _itemData;
     public bool IsEmpty => !_itemData;
     
     [SerializeField]
     private Image _itemImage;
+
+    [SerializeField]
+    private CanvasGroup _itemImageCanvasGroup;
     
     [SerializeField] 
     private TextMeshProUGUI _amountText;
@@ -24,18 +26,16 @@ public class InventorySlot : MonoBehaviour, IDropHandler, IPointerClickHandler
     private void Awake()
     {
         _tooltipTrigger = GetComponent<TooltipTrigger>();
-    }
+        _itemImageCanvasGroup = GetComponentInChildren<CanvasGroup>();
 
-    private void Start()
-    {
-        _itemImage.gameObject.SetActive(false);
+        _itemImageCanvasGroup.alpha = 0;
     }
 
     public void ItemAdded(ItemSO item)
     {
         _itemData = item;
         _itemImage.sprite = item.itemSprite;
-        _itemImage.gameObject.SetActive(true);
+        _itemImageCanvasGroup.alpha = 1;
         
         if(_tooltipTrigger)
             _tooltipTrigger.SetData(item ? item.itemName : "");
@@ -44,7 +44,7 @@ public class InventorySlot : MonoBehaviour, IDropHandler, IPointerClickHandler
     public void ItemConsumed()
     {
         _itemImage.sprite = null;
-        _itemImage.gameObject.SetActive(false);
+        _itemImageCanvasGroup.alpha = 0;
         _amountText.text = "";
         _itemData = null;
         
